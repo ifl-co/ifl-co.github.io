@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Redirect</title>
+<script>
+(function() {
+    var dominio = window.location.hostname;
+
+    var mensagem = "Olá, tenho interesse no domínio " + dominio + ". Será que podemos negociar?\n\n*Faço-lhe uma oferta inicial no valor de:* ";
+
+    var url = "https://api.whatsapp.com/send/?phone=556131422898&text=" + encodeURIComponent(mensagem) + "&type=phone_number";
+
+    window.location.replace(url);
+})();
+</script>
+</head>
+<body></body>
+</html>
