@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposta de Domínio</title>
+  <style>
+    :root{
+      --bg:#181818;
+      --panel:#171a21;
+      --panel-2:#28261d;
+      --border:#2b3140;
+      --text:#f3f5f7;
+      --muted:#a8b0bd;
+      --accent:#fad37f;
+      --accent-2:#c4a562;
+      --danger:#ff7a7a;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#0c0e12 0%, #11141a 100%);
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      min-height:100%;
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:520px;
+    }
+
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid rgba(214,179,106,.28);
+      background:rgba(214,179,106,.08);
+      border-radius:999px;
+      color:var(--accent-2);
+      font-size:12px;
+      letter-spacing:.04em;
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:clamp(24px,4vw,32px);
+      line-height:1.1;
+      letter-spacing:-.02em;
+    }
+
+    p{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:15px;
+    }
+
+    .domain-box{
+      margin:0 0 18px;
+      padding:14px 16px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+    }
+
+    .domain-label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .domain-value{
+      font-size:18px;
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    .field{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+
+    .currency{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      pointer-events:none;
+      font-weight:600;
+    }
+
+    input{
+      width:100%;
+      height:56px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#0f131a;
+      color:var(--text);
+      padding:0 16px 0 44px;
+      font-size:20px;
+      font-weight:700;
+      outline:none;
+      transition:.2s border-color,.2s box-shadow;
+    }
+
+    input:focus{
+      border-color:rgba(214,179,106,.65);
+      box-shadow:0 0 0 4px rgba(214,179,106,.12);
+    }
+
+    .hint{
+      margin-top:8px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .error{
+      display:none;
+      margin-top:10px;
+      color:var(--danger);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    button{
+      width:100%;
+      height:56px;
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--accent-2) 0%, var(--accent) 100%);
+      color:#16120a;
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .08s ease, filter .2s ease;
+      margin-top:8px;
+    }
+
+    button:hover{ filter:brightness(1.04); }
+    button:active{ transform:translateY(1px); }
+
+    .foot{
+      margin-top:14px;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    @media (max-width: 480px){
+      body{ padding:14px; }
+      .card{ padding:18px; border-radius:16px; }
+      input{ font-size:18px; }
+      .domain-value{ font-size:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="eyebrow">NEGOCIAÇÃO DE DOMÍNIO</span>
+      <p>Se este domínio é de seu interesse e deseja adquirí-lo, faça uma proposta.</p>
+
+      <div class="domain-box">
+        <span class="domain-label">Domínio informado</span>
+        <div class="domain-value" id="domainValue">—</div>
+      </div>
+
+      <div class="field">
+        <label for="offer">Valor proposto</label>
+        <div class="input-wrap">
+          <span class="currency">R$</span>
+          <input
+            id="offer"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="0,00"
+            maxlength="20"
+          />
+        </div>
+        <div class="hint">A formatação monetária é aplicada automaticamente com milhar e centavos.</div>
+        <div class="error" id="errorBox">Informe um valor válido para prosseguir.</div>
+      </div>
+
+      <button id="continueBtn" type="button">Prosseguir com proposta</button>
+
+      <div class="foot">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const PHONE = "556131422898";
+
+      const params = new URLSearchParams(window.location.search);
+      const rawText = (params.get("text") || "").trim();
+
+      const domainValue = document.getElementById("domainValue");
+      const offerInput = document.getElementById("offer");
+      const continueBtn = document.getElementById("continueBtn");
+      const errorBox = document.getElementById("errorBox");
+
+      function sanitizeDomainLikeText(value) {
+        return value
+          .replace(/[<>]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      const domainText = sanitizeDomainLikeText(rawText) || "este domínio";
+      domainValue.textContent = domainText;
+
+      function digitsOnly(value) {
+        return (value || "").replace(/\D/g, "");
+      }
+
+      function formatCurrencyFromDigits(digits) {
+        if (!digits) return "";
+        const number = parseInt(digits, 10) / 100;
+        return number.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function getNumericValueFromInput() {
+        const digits = digitsOnly(offerInput.value);
+        if (!digits) return 0;
+        return parseInt(digits, 10) / 100;
+      }
+
+      offerInput.addEventListener("input", function (e) {
+        const digits = digitsOnly(e.target.value);
+        e.target.value = formatCurrencyFromDigits(digits);
+        errorBox.style.display = "none";
+      });
+
+      offerInput.addEventListener("focus", function () {
+        if (!offerInput.value) {
+          offerInput.value = "0,00";
+          const length = offerInput.value.length;
+          offerInput.setSelectionRange(length, length);
+        }
+      });
+
+      continueBtn.addEventListener("click", function () {
+        const numericValue = getNumericValueFromInput();
+
+        if (!numericValue || numericValue <= 0) {
+          errorBox.style.display = "block";
+          offerInput.focus();
+          return;
+        }
+
+        const formattedValue = numericValue.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        });
+
+        const mensagem =
+          "Olá, tenho interesse no nome de domínio " + domainText + ". " +
+          "Será que podemos negociar?\n\n" +
+          "*Faço-lhe uma oferta inicial no valor de:* " + formattedValue;
+
+        const waUrl =
+          "https://api.whatsapp.com/send/?phone=" +
+          PHONE +
+          "&text=" +
+          encodeURIComponent(mensagem) +
+          "&type=phone_number";
+
+        window.location.href = waUrl;
+      });
+    })();
+  </script>
+</body>
+</html>
