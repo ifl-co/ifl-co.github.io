@@ -211,7 +211,7 @@
       margin-top:8px;
     }
 
-    button.primary:hover{ filter:brightness(1.04); }
+    button.primary:hover{ filter:brightness(1.15); }
     button.primary:active{ transform:translateY(1px); }
 
     @media (max-width: 480px){
@@ -221,6 +221,14 @@
       .domain-value{ font-size:16px; }
       .topbar{ align-items:flex-start; }
       .lang-switch{ flex-shrink:0; }
+    }
+    counter {
+      position:fixed;
+      bottom:5px;
+      right:5px;
+      opacity:0.5;
+      transform:scale(0.9);
+      z-index:9999;
     }
   </style>
 </head>
@@ -448,8 +456,10 @@
       applyLanguage("pt-BR");
     })();
   </script>
-  <script>
-new Image().src = "https://hitwebcounter.com/counter/counter.php?page=21486274&style=0007&nbdigits=5&type=page&initCount=12";
-</script>
+<a class="counter">
+  <!-- hitwebcounter Code START -->
+<a href="https://www.hitwebcounter.com/" target="_blank">
+<img src="https://hitwebcounter.com/counter/counter.php?page=21486274&style=0007&nbdigits=5&type=page&initCount=12" title="Free Tools" Alt="Free Tools"   border="0" /></a>            
+</a>
 </body>
 </html>
