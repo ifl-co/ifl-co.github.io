@@ -217,7 +217,7 @@
     .modal-backdrop{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.68);
+      background:rgba(0,0,0,.72);
       display:none;
       align-items:center;
       justify-content:center;
@@ -230,30 +230,50 @@
     }
 
     .modal-card{
-      width:min(100%, 560px);
-      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:26px 24px 22px;
+      width:min(100%, 360px);
+      background:linear-gradient(180deg, rgba(21,25,34,.98) 0%, rgba(31,37,48,.98) 100%);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      box-shadow:0 14px 38px rgba(0,0,0,.55);
+      padding:18px 16px 14px;
+    }
+
+    .modal-icon{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 0 10px;
+      background:rgba(255,122,122,.10);
+      border:1px solid rgba(255,122,122,.18);
+      color:#ff9a9a;
+      font-size:16px;
+      font-weight:700;
     }
 
     .modal-title{
-      font-size:18px;
+      font-size:14px;
       line-height:1.45;
-      font-weight:800;
+      font-weight:700;
       color:var(--text);
-      margin-bottom:10px;
+      margin-bottom:8px;
+      letter-spacing:.01em;
     }
 
     .modal-body{
-      font-size:13px;
-      line-height:1.6;
+      font-size:11.5px;
+      line-height:1.55;
       color:var(--muted);
     }
 
     .modal-btn{
-      margin-top:18px;
+      margin-top:14px;
+      height:40px !important;
+      border-radius:11px !important;
+      font-size:13px !important;
+      font-weight:700 !important;
     }
 
     @media (max-width: 480px){
@@ -263,8 +283,12 @@
       .domain-value{ font-size:16px; }
       .topbar{ align-items:flex-start; }
       .lang-switch{ flex-shrink:0; }
-      .modal-title{ font-size:16px; }
-      .modal-body{ font-size:12px; }
+      .modal-card{
+        width:min(100%, 320px);
+        padding:16px 14px 12px;
+      }
+      .modal-title{ font-size:13px; }
+      .modal-body{ font-size:11px; }
     }
 
     .counterunique {
@@ -325,6 +349,7 @@
 
   <div class="modal-backdrop" id="belowMinimumModal" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="belowMinimumTitle" aria-describedby="belowMinimumBody">
+      <div class="modal-icon">!</div>
       <div class="modal-title" id="belowMinimumTitle"></div>
       <div class="modal-body" id="belowMinimumBody"></div>
       <button class="primary modal-btn" id="belowMinimumCloseBtn" type="button"></button>
@@ -344,8 +369,8 @@
           offerLabel: "Valor proposto",
           button: "Prosseguir com proposta",
           error: "Informe um valor válido para prosseguir.",
-          belowMinimumTitle: "Sua oferta foi registrada, infelizmente o valor proposto está abaixo do mínimo estipulado pelo vendedor.",
-          belowMinimumBody: "Procure fazer ofertas condizentes com o valor do domínio. Novas ofertas tendem a impactar no valor base atribuído ao domínio, ainda que não o satifaçam.",
+          belowMinimumTitle: "Sua oferta foi registrada.<br>Infelizmente, o valor proposto<br>está abaixo do mínimo estipulado pelo vendedor.",
+          belowMinimumBody: "Procure fazer ofertas<br>condizentes com o valor do domínio.<br><br>Novas ofertas tendem a impactar<br>no valor base atribuído ao domínio,<br>ainda que não o satisfaçam.",
           belowMinimumButton: "Entendi",
           currencySymbol: "R$",
           inputPlaceholder: "0,00",
@@ -365,8 +390,8 @@
           offerLabel: "Proposed amount",
           button: "Proceed with offer",
           error: "Enter a valid amount to continue.",
-          belowMinimumTitle: "Your offer has been recorded; unfortunately, the proposed amount is below the seller's minimum.",
-          belowMinimumBody: "Please try to make offers consistent with the domain's value. New offers tend to affect the base value attributed to the domain, even when they do not satisfy it.",
+          belowMinimumTitle: "Your offer has been recorded.<br>Unfortunately, the proposed amount<br>is below the seller's minimum.",
+          belowMinimumBody: "Please try to make offers<br>consistent with the domain's value.<br><br>New offers tend to affect<br>the base value attributed to the domain,<br>even when they do not satisfy it.",
           belowMinimumButton: "Understood",
           currencySymbol: "$",
           inputPlaceholder: "0.00",
@@ -488,11 +513,15 @@
 
       function showBelowMinimumModal() {
         const cfg = i18n[currentLang];
-        belowMinimumTitle.textContent = cfg.belowMinimumTitle;
-        belowMinimumBody.textContent = cfg.belowMinimumBody;
+        belowMinimumTitle.innerHTML = cfg.belowMinimumTitle;
+        belowMinimumBody.innerHTML = cfg.belowMinimumBody;
         belowMinimumCloseBtn.textContent = cfg.belowMinimumButton;
         belowMinimumModal.classList.add("show");
         belowMinimumModal.setAttribute("aria-hidden", "false");
+      }
+
+      function refreshPage() {
+        window.location.reload();
       }
 
       function hideBelowMinimumModal() {
@@ -575,7 +604,7 @@
         applyLanguage("en-US");
       });
 
-      belowMinimumCloseBtn.addEventListener("click", hideBelowMinimumModal);
+      belowMinimumCloseBtn.addEventListener("click", refreshPage);
 
       belowMinimumModal.addEventListener("click", function (e) {
         if (e.target === belowMinimumModal) {
