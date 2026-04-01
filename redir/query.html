@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proposta de Domínio</title>
+  <title>Domain Offer</title>
   <style>
     :root{
       --bg:#0b0e14;
@@ -51,6 +51,14 @@
       padding:60px;
     }
 
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
     .eyebrow{
       display:inline-block;
       padding:6px 10px;
@@ -60,7 +68,50 @@
       color:var(--accent-2);
       font-size:12px;
       letter-spacing:.04em;
-      margin-bottom:14px;
+      margin:0;
+    }
+
+    .lang-switch{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .lang-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 9px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+      transition:.2s ease;
+      min-height:32px;
+    }
+
+    .lang-btn:hover{
+      border-color:rgba(214,179,106,.35);
+      color:var(--text);
+      background:rgba(255,255,255,.05);
+    }
+
+    .lang-btn.active{
+      color:var(--text);
+      border-color:rgba(214,179,106,.45);
+      background:rgba(214,179,106,.08);
+    }
+
+    .flag{
+      font-size:14px;
+      line-height:1;
+    }
+
+    .lang-code{
+      letter-spacing:.03em;
     }
 
     p{
@@ -125,7 +176,7 @@
       border:1px solid var(--border);
       background:#0f131a;
       color:var(--text);
-      padding:0 16px 0 44px;
+      padding:0 16px 0 52px;
       font-size:20px;
       font-weight:700;
       outline:none;
@@ -145,7 +196,7 @@
       line-height:1.45;
     }
 
-    button{
+    button.primary{
       width:100%;
       height:56px;
       border:none;
@@ -160,38 +211,53 @@
       margin-top:8px;
     }
 
-    button:hover{ filter:brightness(1.04); }
-    button:active{ transform:translateY(1px); }
+    button.primary:hover{ filter:brightness(1.04); }
+    button.primary:active{ transform:translateY(1px); }
 
     @media (max-width: 480px){
       body{ padding:14px; }
       .card{ padding:18px; border-radius:16px; }
       input{ font-size:18px; }
       .domain-value{ font-size:16px; }
+      .topbar{ align-items:flex-start; }
+      .lang-switch{ flex-shrink:0; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <span class="eyebrow">NEGOCIAÇÃO DE DOMÍNIO</span>
-      <p>Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.</p>
+      <div class="topbar">
+        <span class="eyebrow" id="eyebrow">NEGOCIAÇÃO DE DOMÍNIO</span>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn active" id="btn-pt" aria-label="Português do Brasil">
+            <span class="flag">🇧🇷</span>
+            <span class="lang-code">pt-br</span>
+          </button>
+          <button type="button" class="lang-btn" id="btn-en" aria-label="English United States">
+            <span class="flag">🇺🇸</span>
+            <span class="lang-code">us-en</span>
+          </button>
+        </div>
+      </div>
+
+      <p id="intro">Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.</p>
 
       <div class="domain-box">
-        <span class="domain-label">Domínio informado</span>
+        <span class="domain-label" id="domainLabel">Domínio informado</span>
         <div class="domain-value" id="domainValue">—</div>
       </div>
 
       <div class="field">
-        <label for="offer">Valor proposto</label>
+        <label for="offer" id="offerLabel">Valor proposto</label>
         <div class="input-wrap">
-          <span class="currency">R$</span>
+          <span class="currency" id="currencySymbol">R$</span>
           <input id="offer" type="text" inputmode="numeric" placeholder="0,00" />
         </div>
         <div class="error" id="errorBox">Informe um valor válido para prosseguir.</div>
       </div>
 
-      <button id="continueBtn">Prosseguir com proposta</button>
+      <button class="primary" id="continueBtn" type="button">Prosseguir com proposta</button>
     </div>
   </div>
 
@@ -199,8 +265,60 @@
     (function () {
       const PHONE = "556131422898";
 
+      const i18n = {
+        "pt-BR": {
+          htmlLang: "pt-BR",
+          eyebrow: "NEGOCIAÇÃO DE DOMÍNIO",
+          intro: "Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.",
+          domainLabel: "Domínio informado",
+          offerLabel: "Valor proposto",
+          button: "Prosseguir com proposta",
+          error: "Informe um valor válido para prosseguir.",
+          currencySymbol: "R$",
+          inputPlaceholder: "0,00",
+          locale: "pt-BR",
+          currency: "BRL",
+          buildMessage: function(domain, value) {
+            return "Olá, tenho interesse no domínio " + domain + ".\n\n" +
+                   "*Faço-lhe uma oferta inicial no valor de:* " + value;
+          }
+        },
+        "en-US": {
+          htmlLang: "en-US",
+          eyebrow: "DOMAIN NEGOTIATION",
+          intro: "If this domain is of interest to you and you would like to acquire it, submit an offer.",
+          domainLabel: "Domain provided",
+          offerLabel: "Proposed amount",
+          button: "Proceed with offer",
+          error: "Enter a valid amount to continue.",
+          currencySymbol: "$",
+          inputPlaceholder: "0.00",
+          locale: "en-US",
+          currency: "USD",
+          buildMessage: function(domain, value) {
+            return "Hello, I am interested in the domain " + domain + ".\n\n" +
+                   "*My initial offer is:* " + value;
+          }
+        }
+      };
+
       const params = new URLSearchParams(window.location.search);
-      let rawText = (params.get("text") || "").trim();
+      const rawText = (params.get("text") || "").trim();
+
+      const domainValue = document.getElementById("domainValue");
+      const offerInput = document.getElementById("offer");
+      const continueBtn = document.getElementById("continueBtn");
+      const errorBox = document.getElementById("errorBox");
+      const btnPt = document.getElementById("btn-pt");
+      const btnEn = document.getElementById("btn-en");
+
+      const eyebrow = document.getElementById("eyebrow");
+      const intro = document.getElementById("intro");
+      const domainLabel = document.getElementById("domainLabel");
+      const offerLabel = document.getElementById("offerLabel");
+      const currencySymbol = document.getElementById("currencySymbol");
+
+      let currentLang = "pt-BR";
 
       function base64UrlDecode(str) {
         try {
@@ -216,48 +334,91 @@
         return value.replace(/[<>]/g, "").trim();
       }
 
-      const decoded = sanitize(base64UrlDecode(rawText)) || "este domínio";
-      document.getElementById("domainValue").textContent = decoded;
+      const decoded = sanitize(base64UrlDecode(rawText)) || "this domain";
+      domainValue.textContent = decoded;
 
-      const input = document.getElementById("offer");
-      const error = document.getElementById("errorBox");
+      function digitsOnly(value) {
+        return (value || "").replace(/\D/g, "");
+      }
 
-      function format(v) {
-        v = v.replace(/\D/g, "");
-        if (!v) return "";
-        return (parseInt(v) / 100).toLocaleString("pt-BR", {
+      function formatAmountFromDigits(digits, lang) {
+        if (!digits) return "";
+        const cfg = i18n[lang];
+        const number = parseInt(digits, 10) / 100;
+
+        return number.toLocaleString(cfg.locale, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
       }
 
-      input.addEventListener("input", e => {
-        e.target.value = format(e.target.value);
-        error.style.display = "none";
+      function getFormattedCurrencyFromInput(lang) {
+        const digits = digitsOnly(offerInput.value);
+        if (!digits) return "";
+        const cfg = i18n[lang];
+        const number = parseInt(digits, 10) / 100;
+
+        return number.toLocaleString(cfg.locale, {
+          style: "currency",
+          currency: cfg.currency
+        });
+      }
+
+      function applyLanguage(lang) {
+        currentLang = lang;
+        const cfg = i18n[lang];
+
+        document.documentElement.lang = cfg.htmlLang;
+        eyebrow.textContent = cfg.eyebrow;
+        intro.textContent = cfg.intro;
+        domainLabel.textContent = cfg.domainLabel;
+        offerLabel.textContent = cfg.offerLabel;
+        continueBtn.textContent = cfg.button;
+        errorBox.textContent = cfg.error;
+        currencySymbol.textContent = cfg.currencySymbol;
+        offerInput.placeholder = cfg.inputPlaceholder;
+
+        btnPt.classList.toggle("active", lang === "pt-BR");
+        btnEn.classList.toggle("active", lang === "en-US");
+
+        const digits = digitsOnly(offerInput.value);
+        offerInput.value = formatAmountFromDigits(digits, lang);
+      }
+
+      offerInput.addEventListener("input", function (e) {
+        const digits = digitsOnly(e.target.value);
+        e.target.value = formatAmountFromDigits(digits, currentLang);
+        errorBox.style.display = "none";
       });
 
-      document.getElementById("continueBtn").onclick = () => {
-        const digits = input.value.replace(/\D/g, "");
-        if (!digits) {
-          error.style.display = "block";
+      continueBtn.addEventListener("click", function () {
+        const digits = digitsOnly(offerInput.value);
+
+        if (!digits || parseInt(digits, 10) <= 0) {
+          errorBox.style.display = "block";
+          offerInput.focus();
           return;
         }
 
-        const value = (parseInt(digits) / 100).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        });
-
-        const msg =
-          "Olá, tenho interesse no domínio " + decoded + ".\n\n" +
-          "*Faço-lhe uma oferta inicial no valor de:* " + value;
+        const formattedValue = getFormattedCurrencyFromInput(currentLang);
+        const msg = i18n[currentLang].buildMessage(decoded, formattedValue);
 
         const url =
           "https://api.whatsapp.com/send/?phone=" + PHONE +
           "&text=" + encodeURIComponent(msg);
 
         window.location.href = url;
-      };
+      });
+
+      btnPt.addEventListener("click", function () {
+        applyLanguage("pt-BR");
+      });
+
+      btnEn.addEventListener("click", function () {
+        applyLanguage("en-US");
+      });
+
+      applyLanguage("pt-BR");
     })();
   </script>
 </body>
