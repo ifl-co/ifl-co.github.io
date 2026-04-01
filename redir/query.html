@@ -1,175 +1,452 @@
-<script>
-(function () {
-  const PHONE = "556131422898";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Domain Offer</title>
+  <style>
+    :root{
+      --bg:#0b0e14;
+      --panel:#151922;
+      --panel-2:#252b38ec;
+      --border:#2b3140;
+      --text:#f3f5f7;
+      --muted:#a8b0bd;
+      --accent:#fad37f;
+      --accent-2:#c4a562;
+      --danger:#ff7a7a;
+      --shadow:0 10px 30px rgba(0,0,0,.48);
+      --radius:18px;
+    }
 
-  const i18n = {
-    "pt-BR": {
-      htmlLang: "pt-BR",
-      eyebrow: "NEGOCIAÇÃO DE DOMÍNIO",
-      intro: "Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.",
-      domainLabel: "DOMÍNIO INFORMADO",
-      offerLabel: "Valor proposto",
-      button: "Prosseguir com proposta",
-      error: "Informe um valor válido para prosseguir.",
-      currencySymbol: "R$",
-      locale: "pt-BR",
-      currency: "BRL",
-      fallbackDomain: "este domínio",
-      buildMessage(domain, value) {
-        return "Olá, tenho interesse no domínio " + domain + ".\n\n" +
-               "*Faço-lhe uma oferta inicial no valor de:* " + value;
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:#0D0F14;
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      min-height:100%;
+    }
+
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      padding-top:60px;
+    }
+
+    .wrap{
+      width:93%;
+      max-width:500px;
+    }
+
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:60px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid rgba(214,179,106,.28);
+      background:rgba(214,179,106,.08);
+      border-radius:999px;
+      color:var(--accent-2);
+      font-size:12px;
+      letter-spacing:.04em;
+      margin:0;
+    }
+
+    .lang-switch{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .lang-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 9px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+      transition:.2s ease;
+      min-height:32px;
+    }
+
+    .lang-btn:hover{
+      border-color:rgba(214,179,106,.35);
+      color:var(--text);
+      background:rgba(255,255,255,.05);
+    }
+
+    .lang-btn.active{
+      color:var(--text);
+      border-color:rgba(214,179,106,.45);
+      background:rgba(214,179,106,.08);
+    }
+
+    .flag{
+      font-size:14px;
+      line-height:1;
+    }
+
+    .lang-code{
+      letter-spacing:.03em;
+    }
+
+    p{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:15px;
+    }
+
+    .domain-box{
+      margin:0 0 18px;
+      padding:14px 16px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+    }
+
+    .domain-label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .domain-value{
+      font-size:18px;
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    .field{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+
+    .currency{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      pointer-events:none;
+      font-weight:600;
+    }
+
+    input{
+      width:100%;
+      height:56px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#0f131a;
+      color:var(--text);
+      padding:0 16px 0 52px;
+      font-size:20px;
+      font-weight:700;
+      outline:none;
+      transition:.2s border-color,.2s box-shadow;
+    }
+
+    input:focus{
+      border-color:rgba(214,179,106,.65);
+      box-shadow:0 0 0 4px rgba(214,179,106,.12);
+    }
+
+    .error{
+      display:none;
+      margin-top:10px;
+      color:var(--danger);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    button.primary{
+      width:100%;
+      height:56px;
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--accent-2) 0%, var(--accent) 100%);
+      color:#16120a;
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .08s ease, filter .2s ease;
+      margin-top:8px;
+    }
+
+    button.primary:hover{ filter:brightness(1.04); }
+    button.primary:active{ transform:translateY(1px); }
+
+    @media (max-width: 480px){
+      body{ padding:14px; }
+      .card{ padding:18px; border-radius:16px; }
+      input{ font-size:18px; }
+      .domain-value{ font-size:16px; }
+      .topbar{ align-items:flex-start; }
+      .lang-switch{ flex-shrink:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <span class="eyebrow" id="eyebrow">NEGOCIAÇÃO DE DOMÍNIO</span>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn active" id="btn-pt" aria-label="Português do Brasil">
+            <span class="flag">🇧🇷</span>
+            <span class="lang-code">pt-br</span>
+          </button>
+          <button type="button" class="lang-btn" id="btn-en" aria-label="English United States">
+            <span class="flag">🇺🇸</span>
+            <span class="lang-code">us-en</span>
+          </button>
+        </div>
+      </div>
+
+      <p id="intro">Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.</p>
+
+      <div class="domain-box">
+        <span class="domain-label" id="domainLabel">DOMÍNIO INFORMADO</span>
+        <div class="domain-value" id="domainValue">—</div>
+      </div>
+
+      <div class="field">
+        <label for="offer" id="offerLabel">Valor proposto</label>
+        <div class="input-wrap">
+          <span class="currency" id="currencySymbol">R$</span>
+          <input id="offer" type="text" inputmode="numeric" autocomplete="off" placeholder="0,00" />
+        </div>
+        <div class="error" id="errorBox">Informe um valor válido para prosseguir.</div>
+      </div>
+
+      <button class="primary" id="continueBtn" type="button">Prosseguir com proposta</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const PHONE = "556131422898";
+
+      const i18n = {
+        "pt-BR": {
+          htmlLang: "pt-BR",
+          eyebrow: "NEGOCIAÇÃO DE DOMÍNIO",
+          intro: "Se este domínio é de seu interesse e deseja adquiri-lo, faça uma proposta.",
+          domainLabel: "DOMÍNIO INFORMADO",
+          offerLabel: "Valor proposto",
+          button: "Prosseguir com proposta",
+          error: "Informe um valor válido para prosseguir.",
+          currencySymbol: "R$",
+          inputPlaceholder: "0,00",
+          locale: "pt-BR",
+          currency: "BRL",
+          fallbackDomain: "este domínio",
+          buildMessage: function(domain, value) {
+            return "Olá, tenho interesse no domínio " + domain + ".\n\n" +
+                   "*Faço-lhe uma oferta inicial no valor de:* " + value;
+          }
+        },
+        "en-US": {
+          htmlLang: "en-US",
+          eyebrow: "DOMAIN NEGOTIATION",
+          intro: "If this domain is of interest to you and you would like to acquire it, submit an offer.",
+          domainLabel: "DOMAIN PROVIDED",
+          offerLabel: "Proposed amount",
+          button: "Proceed with offer",
+          error: "Enter a valid amount to continue.",
+          currencySymbol: "$",
+          inputPlaceholder: "0.00",
+          locale: "en-US",
+          currency: "USD",
+          fallbackDomain: "this domain",
+          buildMessage: function(domain, value) {
+            return "Hello, I am interested in the domain " + domain + ".\n\n" +
+                   "*My initial offer is:* " + value;
+          }
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const rawData = (params.get("data") || "").trim();
+
+      const domainValue = document.getElementById("domainValue");
+      const offerInput = document.getElementById("offer");
+      const continueBtn = document.getElementById("continueBtn");
+      const errorBox = document.getElementById("errorBox");
+      const btnPt = document.getElementById("btn-pt");
+      const btnEn = document.getElementById("btn-en");
+
+      const eyebrow = document.getElementById("eyebrow");
+      const intro = document.getElementById("intro");
+      const domainLabel = document.getElementById("domainLabel");
+      const offerLabel = document.getElementById("offerLabel");
+      const currencySymbol = document.getElementById("currencySymbol");
+
+      let currentLang = "pt-BR";
+      let decodedDomain = "";
+
+      function decodeBase64Url(str) {
+        try {
+          str = str.replace(/-/g, "+").replace(/_/g, "/");
+          str += "=".repeat((4 - (str.length % 4)) % 4);
+
+          const binary = atob(str);
+          const bytes = Uint8Array.from(binary, function(c) {
+            return c.charCodeAt(0);
+          });
+
+          return new TextDecoder("utf-8").decode(bytes);
+        } catch (e) {
+          return "";
+        }
       }
-    },
-    "en-US": {
-      htmlLang: "en-US",
-      eyebrow: "DOMAIN NEGOTIATION",
-      intro: "If this domain is of interest to you and you would like to acquire it, submit an offer.",
-      domainLabel: "DOMAIN PROVIDED",
-      offerLabel: "Proposed amount",
-      button: "Proceed with offer",
-      error: "Enter a valid amount to continue.",
-      currencySymbol: "$",
-      locale: "en-US",
-      currency: "USD",
-      fallbackDomain: "this domain",
-      buildMessage(domain, value) {
-        return "Hello, I am interested in the domain " + domain + ".\n\n" +
-               "*My initial offer is:* " + value;
+
+      function sanitize(value) {
+        return String(value || "")
+          .replace(/[<>]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
       }
-    }
-  };
 
-  const params = new URLSearchParams(window.location.search);
-  const rawData = (params.get("data") || "").trim();
+      function updateDomainDisplay() {
+        const fallback = i18n[currentLang].fallbackDomain;
+        domainValue.textContent = decodedDomain || fallback;
+      }
 
-  const domainValue = document.getElementById("domainValue");
-  const offerInput = document.getElementById("offer");
-  const continueBtn = document.getElementById("continueBtn");
-  const errorBox = document.getElementById("errorBox");
-  const btnPt = document.getElementById("btn-pt");
-  const btnEn = document.getElementById("btn-en");
+      function digitsOnly(value) {
+        return (value || "").replace(/\D/g, "");
+      }
 
-  const eyebrow = document.getElementById("eyebrow");
-  const intro = document.getElementById("intro");
-  const domainLabel = document.getElementById("domainLabel");
-  const offerLabel = document.getElementById("offerLabel");
-  const currencySymbol = document.getElementById("currencySymbol");
+      function formatAmountFromDigits(digits, lang) {
+        if (!digits) return "";
+        const cfg = i18n[lang];
+        const number = parseInt(digits, 10) / 100;
 
-  let currentLang = "pt-BR";
-  let decodedDomain = "";
+        return number.toLocaleString(cfg.locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
 
-  function decodeBase64Url(str) {
-    try {
-      str = str.replace(/-/g, "+").replace(/_/g, "/");
-      str += "=".repeat((4 - (str.length % 4)) % 4);
+      function getFormattedCurrencyFromInput(lang) {
+        const digits = digitsOnly(offerInput.value);
+        if (!digits) return "";
+        const cfg = i18n[lang];
+        const number = parseInt(digits, 10) / 100;
 
-      const binary = atob(str);
-      const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-      return new TextDecoder("utf-8").decode(bytes);
-    } catch {
-      return "";
-    }
-  }
+        return number.toLocaleString(cfg.locale, {
+          style: "currency",
+          currency: cfg.currency
+        });
+      }
 
-  function sanitize(value) {
-    return String(value || "")
-      .replace(/[<>]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
+      function applyLanguage(lang) {
+        currentLang = lang;
+        const cfg = i18n[lang];
 
-  function updateDomainDisplay() {
-    const fallback = i18n[currentLang].fallbackDomain;
-    domainValue.textContent = decodedDomain || fallback;
-  }
+        document.documentElement.lang = cfg.htmlLang;
+        eyebrow.textContent = cfg.eyebrow;
+        intro.textContent = cfg.intro;
+        domainLabel.textContent = cfg.domainLabel;
+        offerLabel.textContent = cfg.offerLabel;
+        continueBtn.textContent = cfg.button;
+        errorBox.textContent = cfg.error;
+        currencySymbol.textContent = cfg.currencySymbol;
+        offerInput.placeholder = cfg.inputPlaceholder;
 
-  function digitsOnly(value) {
-    return (value || "").replace(/\D/g, "");
-  }
+        btnPt.classList.toggle("active", lang === "pt-BR");
+        btnEn.classList.toggle("active", lang === "en-US");
 
-  function formatAmountFromDigits(digits, lang) {
-    if (!digits) return "";
-    const cfg = i18n[lang];
-    const number = parseInt(digits, 10) / 100;
+        const digits = digitsOnly(offerInput.value);
+        offerInput.value = formatAmountFromDigits(digits, lang);
 
-    return number.toLocaleString(cfg.locale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
+        updateDomainDisplay();
+      }
 
-  function getFormattedCurrencyFromInput(lang) {
-    const digits = digitsOnly(offerInput.value);
-    if (!digits) return "";
-    const cfg = i18n[lang];
-    const number = parseInt(digits, 10) / 100;
+      decodedDomain = sanitize(decodeBase64Url(rawData));
 
-    return number.toLocaleString(cfg.locale, {
-      style: "currency",
-      currency: cfg.currency
-    });
-  }
+      offerInput.addEventListener("input", function (e) {
+        const digits = digitsOnly(e.target.value);
+        e.target.value = formatAmountFromDigits(digits, currentLang);
+        errorBox.style.display = "none";
+      });
 
-  function applyLanguage(lang) {
-    currentLang = lang;
-    const cfg = i18n[lang];
+      offerInput.addEventListener("focus", function () {
+        if (!offerInput.value) {
+          offerInput.value = formatAmountFromDigits("0", currentLang);
+        }
+      });
 
-    document.documentElement.lang = cfg.htmlLang;
-    eyebrow.textContent = cfg.eyebrow;
-    intro.textContent = cfg.intro;
-    domainLabel.textContent = cfg.domainLabel;
-    offerLabel.textContent = cfg.offerLabel;
-    continueBtn.textContent = cfg.button;
-    errorBox.textContent = cfg.error;
-    currencySymbol.textContent = cfg.currencySymbol;
+      continueBtn.addEventListener("click", function () {
+        const digits = digitsOnly(offerInput.value);
 
-    btnPt.classList.toggle("active", lang === "pt-BR");
-    btnEn.classList.toggle("active", lang === "en-US");
+        if (!digits || parseInt(digits, 10) <= 0) {
+          errorBox.style.display = "block";
+          offerInput.focus();
+          return;
+        }
 
-    const digits = digitsOnly(offerInput.value);
-    offerInput.value = formatAmountFromDigits(digits, lang);
+        const formattedValue = getFormattedCurrencyFromInput(currentLang);
+        const domainForMessage = decodedDomain || i18n[currentLang].fallbackDomain;
+        const msg = i18n[currentLang].buildMessage(domainForMessage, formattedValue);
 
-    updateDomainDisplay();
-  }
+        const url =
+          "https://api.whatsapp.com/send/?phone=" +
+          PHONE +
+          "&text=" +
+          encodeURIComponent(msg);
 
-  decodedDomain = sanitize(decodeBase64Url(rawData));
+        window.location.href = url;
+      });
 
-  offerInput.addEventListener("input", function (e) {
-    const digits = digitsOnly(e.target.value);
-    e.target.value = formatAmountFromDigits(digits, currentLang);
-    errorBox.style.display = "none";
-  });
+      btnPt.addEventListener("click", function () {
+        applyLanguage("pt-BR");
+      });
 
-  continueBtn.addEventListener("click", function () {
-    const digits = digitsOnly(offerInput.value);
+      btnEn.addEventListener("click", function () {
+        applyLanguage("en-US");
+      });
 
-    if (!digits || parseInt(digits, 10) <= 0) {
-      errorBox.style.display = "block";
-      offerInput.focus();
-      return;
-    }
-
-    const formattedValue = getFormattedCurrencyFromInput(currentLang);
-    const domainForMessage = decodedDomain || i18n[currentLang].fallbackDomain;
-    const msg = i18n[currentLang].buildMessage(domainForMessage, formattedValue);
-
-    const url =
-      "https://api.whatsapp.com/send/?phone=" +
-      PHONE +
-      "&text=" +
-      encodeURIComponent(msg);
-
-    window.location.href = url;
-  });
-
-  btnPt.addEventListener("click", function () {
-    applyLanguage("pt-BR");
-  });
-
-  btnEn.addEventListener("click", function () {
-    applyLanguage("en-US");
-  });
-
-  applyLanguage("pt-BR");
-})();
-</script>
+      applyLanguage("pt-BR");
+    })();
+  </script>
+</body>
+</html>
