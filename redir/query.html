@@ -430,6 +430,13 @@
       let decodedDomain = "";
       let minimumValue = 0;
 
+      function getEffectiveMinimumValue() {
+        if (currentLang === "en-US" && minimumValue > 0) {
+          return minimumValue * 5.4;
+        }
+        return minimumValue;
+      }
+
       function decodeBase64Url(str) {
         try {
           str = str.replace(/-/g, "+").replace(/_/g, "/");
@@ -578,7 +585,9 @@
           return;
         }
 
-        if (minimumValue > 0 && numericValue < minimumValue) {
+        const effectiveMinimumValue = getEffectiveMinimumValue();
+
+        if (effectiveMinimumValue > 0 && numericValue < effectiveMinimumValue) {
           showBelowMinimumModal();
           return;
         }
