@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Redirecionamentos</title>
+  <style>
+    :root{
+      --bg:#0d0f14;
+      --panel:#151922;
+      --panel-2:#252b38ec;
+      --border:#2b3140;
+      --text:#f3f5f7;
+      --muted:#a8b0bd;
+      --accent:#fad37f;
+      --accent-2:#c4a562;
+      --danger:#ff7a7a;
+      --success:#9ad7a4;
+      --shadow:0 10px 30px rgba(0,0,0,.48);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+    }
+
+    body{
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:28px 18px 40px;
+    }
+
+    .wrap{
+      width:min(1120px, 96vw);
+    }
+
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      padding:6px 10px;
+      border:1px solid rgba(214,179,106,.28);
+      background:rgba(214,179,106,.08);
+      border-radius:999px;
+      color:var(--accent-2);
+      font-size:12px;
+      letter-spacing:.04em;
+      margin:0 0 14px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:28px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+
+    .intro{
+      margin:0 0 22px;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:15px;
+      max-width:900px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+    }
+
+    .panel h2{
+      margin:0 0 10px;
+      font-size:15px;
+      letter-spacing:.01em;
+    }
+
+    .panel p{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    textarea{
+      width:100%;
+      min-height:360px;
+      resize:vertical;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#0f131a;
+      color:var(--text);
+      padding:16px;
+      font-size:14px;
+      line-height:1.55;
+      outline:none;
+      transition:.2s border-color,.2s box-shadow;
+      font-family:Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+    }
+
+    textarea:focus{
+      border-color:rgba(214,179,106,.65);
+      box-shadow:0 0 0 4px rgba(214,179,106,.12);
+    }
+
+    .example{
+      display:block;
+      background:#0f131a;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px 14px;
+      color:#cfd5df;
+      font-size:13px;
+      line-height:1.55;
+      white-space:pre-line;
+      font-family:Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+      margin-top:8px;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    button{
+      height:50px;
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      padding:0 18px;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition:transform .08s ease, filter .2s ease, background .2s ease;
+    }
+
+    .primary{
+      background:linear-gradient(180deg,var(--accent-2) 0%, var(--accent) 100%);
+      color:#16120a;
+    }
+
+    .secondary{
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+
+    button:hover{ filter:brightness(1.08); }
+    button:active{ transform:translateY(1px); }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid transparent;
+      font-size:14px;
+      line-height:1.55;
+      white-space:pre-wrap;
+    }
+
+    .message.error{
+      display:none;
+      background:rgba(255,122,122,.08);
+      border-color:rgba(255,122,122,.22);
+      color:#ffc4c4;
+    }
+
+    .message.success{
+      display:none;
+      background:rgba(154,215,164,.08);
+      border-color:rgba(154,215,164,.22);
+      color:#ccf4d2;
+    }
+
+    .summary-list{
+      margin:10px 0 0;
+      padding-left:18px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .table-wrap{
+      margin-top:22px;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+    }
+
+    thead th{
+      text-align:left;
+      font-size:12px;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+      border-bottom:1px solid var(--border);
+      padding:14px 16px;
+    }
+
+    tbody td{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      vertical-align:top;
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    tbody tr:last-child td{
+      border-bottom:none;
+    }
+
+    .domain-cell{
+      font-weight:700;
+      color:var(--text);
+      word-break:break-word;
+    }
+
+    .url-cell{
+      color:#d9dee6;
+      word-break:break-all;
+      font-family:Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+      font-size:13px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+
+    .count-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    @media (max-width: 900px){
+      .grid{ grid-template-columns:1fr; }
+      textarea{ min-height:280px; }
+    }
+
+    @media (max-width: 520px){
+      body{ padding:14px; }
+      .card{ padding:18px; border-radius:16px; }
+      h1{ font-size:23px; }
+      .panel{ padding:16px; }
+      button{ width:100%; }
+      .actions{ flex-direction:column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="eyebrow">AUTOMAÇÃO DE REDIRECIONAMENTOS</span>
+      <h1>Gerador de redirecionamentos</h1>
+      <p class="intro">
+        Insira uma lista contendo pares no formato dominio<strong>:</strong><i><a style="font-weight: 200;">{</a>valor<a style="font-weight: 200;">}</a></i>, onde valor deve ser um número inteiro.
+      </p>
+
+      <div class="grid">
+        <div class="panel">
+          <h2>Entrada</h2>
+          <p>Os itens podem ser separados por quebra de linha ou espaço.</p>
+          <textarea id="inputList" placeholder="exemplo.com:1500&#10;https://meusite.com.br/pagina:80&#10;blog.teste.net/path?x=1:250"></textarea>
+
+          <div class="actions">
+            <button class="primary" id="generateBtn" type="button">Gerar redirecionamentos</button>
+            <button class="secondary" id="clearBtn" type="button">Limpar</button>
+            <button class="secondary" id="copyBtn" type="button">Copiar tabela em TSV</button>
+          </div>
+
+          <div class="message error" id="errorBox"></div>
+          <div class="message success" id="successBox"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Regras aplicadas</h2>
+          <p>A página normaliza cada item antes de validar e gerar o destino.</p>
+          <ul class="summary-list">
+            <li>Remove <strong>http://</strong> e <strong>https://</strong>, se houver.</li>
+            <li>Descarta caminho, parâmetros e fragmentos após o domínio.</li>
+            <li>Acrescenta <strong>www.</strong> quando ausente.</li>
+            <li>Valida o domínio por expressão regular.</li>
+            <li>Exige valor inteiro superior a <strong>40</strong>.</li>
+            <li>Codifica o par <strong>domínio:valor</strong> em <strong>Base64 URL-safe sem padding</strong>.</li>
+            <li>Faz append do prefixo <strong>https://ifl-co.github.io/redir/query?data=</strong>.</li>
+          </ul>
+
+          <span class="example">Exemplo:
+example.com:1500
+https://example.app/:500
+example.com.br/captura?x=1:90
+www.example.br:41
+
+
+Saídas normalizadas:
+www.example.com
+www.example.app
+www.example.com.br
+www.example.br</span>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="count-badge" id="countBadge">0 redirecionamentos gerados</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Domínio</th>
+              <th>Redirecionar para</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr>
+              <td colspan="2" class="muted">Nenhum redirecionamento gerado até o momento.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const PREFIX = "https://ifl-co.github.io/redir/query?data=";
+
+      const inputList = document.getElementById("inputList");
+      const generateBtn = document.getElementById("generateBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const errorBox = document.getElementById("errorBox");
+      const successBox = document.getElementById("successBox");
+      const resultBody = document.getElementById("resultBody");
+      const countBadge = document.getElementById("countBadge");
+
+      let lastResults = [];
+
+      function showError(message) {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+        successBox.style.display = "none";
+      }
+
+      function showSuccess(message) {
+        successBox.textContent = message;
+        successBox.style.display = "block";
+        errorBox.style.display = "none";
+      }
+
+      function clearMessages() {
+        errorBox.style.display = "none";
+        successBox.style.display = "none";
+      }
+
+      function toBase64Url(str) {
+        const utf8 = new TextEncoder().encode(str);
+        let binary = "";
+        for (let i = 0; i < utf8.length; i++) {
+          binary += String.fromCharCode(utf8[i]);
+        }
+        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      }
+
+      function parseTokens(raw) {
+        if (!raw || !raw.trim()) {
+          return [];
+        }
+        return raw.trim().split(/\s+/).filter(Boolean);
+      }
+
+      function normalizeToken(rawToken) {
+        let token = String(rawToken || "").trim();
+
+        token = token
+          .replace(/[;,]+$/g, "")
+          .replace(/^["'`]+|["'`]+$/g, "")
+          .trim();
+
+        const lastColonIndex = token.lastIndexOf(":");
+        if (lastColonIndex === -1) {
+          return { ok: false, error: "ausência de separador ':' entre domínio e valor." };
+        }
+
+        let rawDomain = token.slice(0, lastColonIndex).trim();
+        let rawValue = token.slice(lastColonIndex + 1).trim();
+
+        rawDomain = rawDomain
+          .replace(/^['"`]+|['"`]+$/g, "")
+          .replace(/[;,]+$/g, "")
+          .trim();
+
+        rawValue = rawValue
+          .replace(/^['"`]+|['"`]+$/g, "")
+          .replace(/[;,]+$/g, "")
+          .trim();
+
+        if (!rawDomain) {
+          return { ok: false, error: "domínio ausente." };
+        }
+
+        if (!rawValue) {
+          return { ok: false, error: "valor ausente." };
+        }
+
+        let candidate = rawDomain.toLowerCase();
+
+        candidate = candidate.replace(/^(https?:\/\/)+/i, "");
+        candidate = candidate.replace(/^\/+/, "");
+        candidate = candidate.split(/[\/?#]/)[0].trim();
+        candidate = candidate.replace(/:+$/g, "");
+        candidate = candidate.replace(/\.+$/g, "");
+        candidate = candidate.replace(/^www\./i, "");
+
+        if (!candidate) {
+          return { ok: false, error: "domínio inválido após normalização." };
+        }
+
+        candidate = "www." + candidate;
+
+        const domainRegex = /^www\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
+        if (!domainRegex.test(candidate)) {
+          return { ok: false, error: "domínio incompatível com o padrão esperado." };
+        }
+
+        if (!/^\d+$/.test(rawValue)) {
+          return { ok: false, error: "o valor informado não é inteiro." };
+        }
+
+        const value = Number(rawValue);
+
+        if (!Number.isInteger(value) || value <= 40) {
+          return { ok: false, error: "o valor deve ser inteiro e maior que 40." };
+        }
+
+        return {
+          ok: true,
+          normalizedDomain: candidate,
+          value: value,
+          normalizedPair: candidate + ":" + value
+        };
+      }
+
+      function renderResults(results) {
+        if (!results.length) {
+          resultBody.innerHTML = '<tr><td colspan="2" class="muted">Nenhum redirecionamento gerado até o momento.</td></tr>';
+          countBadge.textContent = "0 redirecionamentos gerados";
+          return;
+        }
+
+        const rows = results.map(function (item) {
+          return (
+            "<tr>" +
+              "<td class=\"domain-cell\">" + escapeHtml(item.domain) + "</td>" +
+              "<td class=\"url-cell\">" + escapeHtml(item.redirectTo) + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+
+        resultBody.innerHTML = rows;
+        countBadge.textContent = results.length + (results.length === 1 ? " redirecionamento gerado" : " redirecionamentos gerados");
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function generate() {
+        clearMessages();
+
+        const tokens = parseTokens(inputList.value);
+
+        if (!tokens.length) {
+          showError("Informe ao menos um item no formato dominio:0000.");
+          renderResults([]);
+          lastResults = [];
+          return;
+        }
+
+        const results = [];
+
+        for (let i = 0; i < tokens.length; i++) {
+          const token = tokens[i];
+          const parsed = normalizeToken(token);
+
+          if (!parsed.ok) {
+            showError("Erro de formatação no item " + (i + 1) + ": " + token + "\\nMotivo: " + parsed.error);
+            renderResults([]);
+            lastResults = [];
+            return;
+          }
+
+          const encoded = toBase64Url(parsed.normalizedPair);
+
+          results.push({
+            domain: parsed.normalizedDomain,
+            redirectTo: PREFIX + encoded,
+            raw: parsed.normalizedPair
+          });
+        }
+
+        lastResults = results;
+        renderResults(results);
+        showSuccess("Lista processada com sucesso. " + results.length + (results.length === 1 ? " item foi normalizado e convertido." : " itens foram normalizados e convertidos."));
+      }
+
+      function copyTsv() {
+        if (!lastResults.length) {
+          showError("Não há tabela gerada para copiar.");
+          return;
+        }
+
+        const tsv = [
+          "domínio\tredirecionar para",
+          ...lastResults.map(item => item.domain + "\t" + item.redirectTo)
+        ].join("\\n");
+
+        navigator.clipboard.writeText(tsv).then(function () {
+          showSuccess("Tabela copiada em TSV.");
+        }).catch(function () {
+          showError("Não foi possível copiar automaticamente. Tente novamente.");
+        });
+      }
+
+      function clearAll() {
+        inputList.value = "";
+        lastResults = [];
+        clearMessages();
+        renderResults([]);
+        inputList.focus();
+      }
+
+      generateBtn.addEventListener("click", generate);
+      copyBtn.addEventListener("click", copyTsv);
+      clearBtn.addEventListener("click", clearAll);
+    })();
+  </script>
+</body>
+</html>
