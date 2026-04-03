@@ -359,6 +359,7 @@
   <script>
     (function () {
       const PHONE = "556131422898";
+      const EXCHANGE_RATE = 5.4; // 1 USD = 5.4 BRL
 
       const i18n = {
         "pt-BR": {
@@ -428,14 +429,7 @@
 
       let currentLang = "pt-BR";
       let decodedDomain = "";
-      let minimumValue = 0;
-
-      function getEffectiveMinimumValue() {
-        if (currentLang === "en-US" && minimumValue > 0) {
-          return minimumValue * 5.4;
-        }
-        return minimumValue;
-      }
+      let minimumValueBRL = 0;
 
       function decodeBase64Url(str) {
         try {
@@ -490,15 +484,20 @@
         return (value || "").replace(/\D/g, "");
       }
 
-      function formatAmountFromDigits(digits, lang) {
-        if (!digits) return "";
+      function formatAmountFromNumber(number, lang) {
+        if (!Number.isFinite(number) || number <= 0) return "";
         const cfg = i18n[lang];
-        const number = parseInt(digits, 10) / 100;
 
         return number.toLocaleString(cfg.locale, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
+      }
+
+      function formatAmountFromDigits(digits, lang) {
+        if (!digits) return "";
+        const number = parseInt(digits, 10) / 100;
+        return formatAmountFromNumber(number, lang);
       }
 
       function getNumericAmountFromInput() {
@@ -516,6 +515,34 @@
           style: "currency",
           currency: cfg.currency
         });
+      }
+
+      function convertAmount(value, fromLang, toLang) {
+        if (!Number.isFinite(value) || value <= 0 || fromLang === toLang) {
+          return value;
+        }
+
+        if (fromLang === "pt-BR" && toLang === "en-US") {
+          return value / EXCHANGE_RATE;
+        }
+
+        if (fromLang === "en-US" && toLang === "pt-BR") {
+          return value * EXCHANGE_RATE;
+        }
+
+        return value;
+      }
+
+      function getEffectiveMinimumValue() {
+        if (minimumValueBRL <= 0) {
+          return 0;
+        }
+
+        if (currentLang === "en-US") {
+          return minimumValueBRL / EXCHANGE_RATE;
+        }
+
+        return minimumValueBRL;
       }
 
       function showBelowMinimumModal() {
@@ -537,6 +564,7 @@
       }
 
       function applyLanguage(lang) {
+        const previousLang = currentLang;
         currentLang = lang;
         const cfg = i18n[lang];
 
@@ -554,15 +582,18 @@
         btnPt.classList.toggle("active", lang === "pt-BR");
         btnEn.classList.toggle("active", lang === "en-US");
 
-        const digits = digitsOnly(offerInput.value);
-        offerInput.value = formatAmountFromDigits(digits, lang);
+        const currentValue = getNumericAmountFromInput();
+        if (currentValue > 0) {
+          const convertedValue = convertAmount(currentValue, previousLang, lang);
+          offerInput.value = formatAmountFromNumber(convertedValue, lang);
+        }
 
         updateDomainDisplay();
       }
 
       const parsedData = parseDomainAndMinimum(decodeBase64Url(rawData));
       decodedDomain = parsedData.domain;
-      minimumValue = parsedData.minimumValue;
+      minimumValueBRL = parsedData.minimumValue;
 
       offerInput.addEventListener("input", function (e) {
         const digits = digitsOnly(e.target.value);
