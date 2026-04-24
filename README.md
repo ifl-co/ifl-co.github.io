@@ -7,6 +7,7 @@ Mecanismo simples de redirecionamento com base em parâmetros codificados na URL
 [acesso à ferramenta](https://ifl-co.github.io/redir/gen.html)
 `https://ifl-co.github.io/redir/gen.html`
 
+<a href="https://ifl-co.github.io/redir/gen.html" target="_blank" rel="noopener noreferrer">acesso à ferramenta</a>
 
 ---
 
