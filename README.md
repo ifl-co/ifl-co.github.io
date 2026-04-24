@@ -2,6 +2,11 @@
 
 Mecanismo simples de redirecionamento com base em parâmetros codificados na URL. Recebe dados via query string, interpreta no navegador e executa ações (ex.: envio para WhatsApp) conforme regras definidas.
 
+## Menu
+### Gerador de URL de Redirecionamento  
+`https://ifl-co.github.io/redir/gen.html`
+
+
 ---
 
 ## Como funciona
