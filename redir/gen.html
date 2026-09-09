@@ -205,6 +205,102 @@
       line-height:1.7;
     }
 
+    .accordion{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:6px;
+    }
+
+    .accordion-item{
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      background:rgba(255,255,255,.018);
+    }
+
+    .accordion-trigger{
+      width:100%;
+      height:auto;
+      min-height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      color:var(--text);
+      font-size:13px;
+      font-weight:700;
+      text-align:left;
+    }
+
+    .accordion-trigger:hover{
+      background:rgba(255,255,255,.035);
+      filter:none;
+    }
+
+    .accordion-trigger .chevron{
+      color:var(--accent-2);
+      font-size:17px;
+      font-weight:400;
+      line-height:1;
+      transition:transform .22s ease;
+      flex-shrink:0;
+    }
+
+    .accordion-item.open .accordion-trigger .chevron{
+      transform:rotate(45deg);
+    }
+
+    .accordion-content{
+      display:grid;
+      grid-template-rows:0fr;
+      transition:grid-template-rows .25s ease;
+    }
+
+    .accordion-item.open .accordion-content{
+      grid-template-rows:1fr;
+    }
+
+    .accordion-content-inner{
+      overflow:hidden;
+    }
+
+    .accordion-body{
+      padding:0 14px 14px;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.65;
+    }
+
+    .accordion-body p{
+      margin:0 0 9px;
+      font-size:12.5px;
+      line-height:1.65;
+    }
+
+    .accordion-body p:last-child{
+      margin-bottom:0;
+    }
+
+    .accordion-body strong{
+      color:#dce1e8;
+      font-weight:650;
+    }
+
+    .accordion-body ol,
+    .accordion-body ul{
+      margin:7px 0 0;
+      padding-left:18px;
+    }
+
+    .accordion-body li{
+      margin:4px 0;
+    }
+
     .table-wrap{
       margin-top:22px;
       overflow:auto;
@@ -250,9 +346,46 @@
 
     .url-cell{
       color:#d9dee6;
-      word-break:break-all;
       font-family:Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
       font-size:13px;
+    }
+
+    .url-copy-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .generated-url{
+      flex:1 1 auto;
+      min-width:0;
+      word-break:break-all;
+    }
+
+    .copy-row-btn{
+      flex:0 0 auto;
+      height:32px;
+      padding:0 11px;
+      border-radius:9px;
+      border:1px solid rgba(214,179,106,.28);
+      background:rgba(214,179,106,.07);
+      color:var(--accent);
+      font-size:11px;
+      font-weight:750;
+      letter-spacing:.02em;
+    }
+
+    .copy-row-btn:hover{
+      background:rgba(214,179,106,.12);
+      border-color:rgba(214,179,106,.42);
+      filter:none;
+    }
+
+    .copy-row-btn.copied{
+      color:#ccf4d2;
+      border-color:rgba(154,215,164,.28);
+      background:rgba(154,215,164,.08);
     }
 
     .muted{
@@ -290,8 +423,11 @@
       .card{ padding:18px; border-radius:16px; }
       h1{ font-size:23px; }
       .panel{ padding:16px; }
-      button{ width:100%; }
+      .actions button{ width:100%; }
       .actions{ flex-direction:column; }
+      .accordion-trigger{ width:100%; }
+      .url-copy-wrap{ align-items:flex-start; }
+      .copy-row-btn{ width:auto; }
     }
   </style>
 </head>
@@ -301,13 +437,16 @@
       <span class="eyebrow">AUTOMAÇÃO DE REDIRECIONAMENTOS</span>
       <h1>Gerador de redirecionamentos</h1>
       <p class="intro">
-        Insira uma lista contendo pares no formato <strong>domínio<a style="font-weight: 800;">:</a></strong><i><a style="font-weight: 200;">{</a>valor mínimo<a style="font-weight: 200;">}</a></i><br> OBS: Valor mínimo deve ser um número inteiro.
+        Insira uma lista contendo pares no formato <strong>dominio:0000</strong>. A rotina tenta corrigir protocolos,
+        barras, páginas, ausência de <strong>www.</strong> e pequenas impurezas de entrada. Se houver erro que não possa
+        ser saneado, o item problemático é apontado. Se tudo estiver válido, a página gera a tabela com o destino final
+        já montado no padrão deste projeto.
       </p>
 
       <div class="grid">
         <div class="panel">
           <h2>Entrada</h2>
-          <p>Os itens podem ser separados por quebra de linha ou espaço.</p>
+          <p>Os itens podem ser separados por quebra de linha, espaço ou ambos. O valor deve ser inteiro e maior que 40.</p>
           <textarea id="inputList" placeholder="exemplo.com:1500&#10;https://meusite.com.br/pagina:80&#10;blog.teste.net/path?x=1:250"></textarea>
 
           <div class="actions">
@@ -321,30 +460,99 @@
         </div>
 
         <div class="panel">
-          <h2>Regras aplicadas</h2>
-          <p>A página normaliza cada item antes de validar e gerar o destino.</p>
-          <ul class="summary-list">
-            <li>Remove <strong>http://</strong> e <strong>https://</strong>, se houver.</li>
-            <li>Descarta caminho, parâmetros e fragmentos após o domínio.</li>
-            <li>Acrescenta <strong>www.</strong> quando ausente.</li>
-            <li>Valida o domínio por expressão regular.</li>
-            <li>Exige valor inteiro superior a <strong>40</strong>.</li>
-            <li>Codifica o par <strong>domínio:valor</strong> em <strong>Base64 URL-safe sem padding</strong>.</li>
-            <li>Faz append do prefixo <strong>https://ifl-co.github.io/redir/query?data=</strong>.</li>
-          </ul>
+          <h2>Informações da plataforma</h2>
+          <p>Consulte as regras de geração, conexão do domínio, valores e funcionamento da negociação.</p>
 
-          <span class="example">Exemplo:
-example.com:1500
-https://example.app/:500
-example.com.br/captura?x=1:90
-www.example.br:41
+          <div class="accordion" id="infoAccordion">
 
+            <div class="accordion-item open">
+              <button class="accordion-trigger" type="button" aria-expanded="true">
+                <span>Regras aplicadas</span>
+                <span class="chevron">+</span>
+              </button>
+              <div class="accordion-content">
+                <div class="accordion-content-inner">
+                  <div class="accordion-body">
+                    <ul>
+                      <li>Remove <strong>http://</strong> e <strong>https://</strong>, quando presentes.</li>
+                      <li>Descarta caminhos, parâmetros e fragmentos posteriores ao domínio.</li>
+                      <li>Inclui <strong>www.</strong> quando ausente.</li>
+                      <li>Valida a estrutura do domínio e exige valor inteiro superior a <strong>40</strong>.</li>
+                      <li>Codifica <strong>domínio:valor</strong> em Base64 URL-safe e gera o endereço de negociação.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-Saídas normalizadas:
-www.example.com
-www.example.app
-www.example.com.br
-www.example.br</span>
+            <div class="accordion-item">
+              <button class="accordion-trigger" type="button" aria-expanded="false">
+                <span>Como conectar meu domínio à plataforma</span>
+                <span class="chevron">+</span>
+              </button>
+              <div class="accordion-content">
+                <div class="accordion-content-inner">
+                  <div class="accordion-body">
+                    <p>Após gerar o endereço correspondente ao domínio, copie a URL produzida e configure um <strong>redirecionamento HTTP</strong> no Registro.br ou no provedor responsável pelo domínio.</p>
+                    <ol>
+                      <li>Localize a opção de redirecionamento do domínio no provedor.</li>
+                      <li>Cole a URL gerada pela plataforma como destino.</li>
+                      <li>Salve a configuração e aguarde a propagação definida pelo provedor.</li>
+                    </ol>
+                    <p>Quando alguém acessar o domínio, será encaminhado diretamente à página de negociação vinculada.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" type="button" aria-expanded="false">
+                <span>Valores</span>
+                <span class="chevron">+</span>
+              </button>
+              <div class="accordion-content">
+                <div class="accordion-content-inner">
+                  <div class="accordion-body">
+                    <p><strong>Preço mínimo:</strong> é informado pelo titular do domínio ao gerar o redirecionamento e funciona como parâmetro mínimo para as propostas recebidas.</p>
+                    <p><strong>Preço de venda:</strong> não é imposto pela plataforma. O valor final decorre da negociação e da aceitação do titular do domínio.</p>
+                    <p><strong>Uso da plataforma:</strong> a geração e utilização do endereço de negociação não transfere a propriedade do domínio.</p>
+                    <p><strong>Venda concluída pela plataforma:</strong> incide comissão de <strong>16% sobre o valor da venda</strong>, destinada à intermediação e ao processamento da operação.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" type="button" aria-expanded="false">
+                <span>Segurança e privacidade</span>
+                <span class="chevron">+</span>
+              </button>
+              <div class="accordion-content">
+                <div class="accordion-content-inner">
+                  <div class="accordion-body">
+                    <p>O endereço gerado contém apenas os dados necessários para identificar o domínio e o parâmetro mínimo de negociação. Evite inserir informações pessoais, credenciais ou dados confidenciais no campo de entrada.</p>
+                    <p>A configuração do redirecionamento permanece sob controle do titular e pode ser removida diretamente no provedor do domínio.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button class="accordion-trigger" type="button" aria-expanded="false">
+                <span>Negociação e transferência</span>
+                <span class="chevron">+</span>
+              </button>
+              <div class="accordion-content">
+                <div class="accordion-content-inner">
+                  <div class="accordion-body">
+                    <p>O recebimento de uma proposta não obriga o titular a vender. A transferência somente deve ocorrer após a definição das condições comerciais e a confirmação do pagamento ou do procedimento de intermediação aplicável.</p>
+                    <p>Até a conclusão da operação, o domínio continua registrado em nome do atual titular. A alteração de titularidade é realizada posteriormente no registrador ou provedor competente.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -382,6 +590,7 @@ www.example.br</span>
       const successBox = document.getElementById("successBox");
       const resultBody = document.getElementById("resultBody");
       const countBadge = document.getElementById("countBadge");
+      const infoAccordion = document.getElementById("infoAccordion");
 
       let lastResults = [];
 
@@ -497,11 +706,16 @@ www.example.br</span>
           return;
         }
 
-        const rows = results.map(function (item) {
+        const rows = results.map(function (item, index) {
           return (
             "<tr>" +
               "<td class=\"domain-cell\">" + escapeHtml(item.domain) + "</td>" +
-              "<td class=\"url-cell\">" + escapeHtml(item.redirectTo) + "</td>" +
+              "<td class=\"url-cell\">" +
+                "<div class=\"url-copy-wrap\">" +
+                  "<span class=\"generated-url\">" + escapeHtml(item.redirectTo) + "</span>" +
+                  "<button type=\"button\" class=\"copy-row-btn\" data-copy-index=\"" + index + "\">Copiar</button>" +
+                "</div>" +
+              "</td>" +
             "</tr>"
           );
         }).join("");
@@ -558,6 +772,72 @@ www.example.br</span>
         showSuccess("Lista processada com sucesso. " + results.length + (results.length === 1 ? " item foi normalizado e convertido." : " itens foram normalizados e convertidos."));
       }
 
+      async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+
+        const helper = document.createElement("textarea");
+        helper.value = text;
+        helper.setAttribute("readonly", "");
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(helper);
+
+        if (!copied) {
+          throw new Error("Falha ao copiar.");
+        }
+      }
+
+      resultBody.addEventListener("click", function (event) {
+        const button = event.target.closest(".copy-row-btn");
+        if (!button) return;
+
+        const index = Number(button.dataset.copyIndex);
+        const item = lastResults[index];
+        if (!item) return;
+
+        const originalText = button.textContent;
+        copyText(item.redirectTo).then(function () {
+          button.textContent = "Copiado";
+          button.classList.add("copied");
+
+          setTimeout(function () {
+            button.textContent = originalText;
+            button.classList.remove("copied");
+          }, 1400);
+        }).catch(function () {
+          showError("Não foi possível copiar este redirecionamento automaticamente.");
+        });
+      });
+
+      if (infoAccordion) {
+        infoAccordion.addEventListener("click", function (event) {
+          const trigger = event.target.closest(".accordion-trigger");
+          if (!trigger) return;
+
+          const item = trigger.closest(".accordion-item");
+          const willOpen = !item.classList.contains("open");
+
+          infoAccordion.querySelectorAll(".accordion-item").forEach(function (otherItem) {
+            otherItem.classList.remove("open");
+            const otherTrigger = otherItem.querySelector(".accordion-trigger");
+            if (otherTrigger) {
+              otherTrigger.setAttribute("aria-expanded", "false");
+            }
+          });
+
+          if (willOpen) {
+            item.classList.add("open");
+            trigger.setAttribute("aria-expanded", "true");
+          }
+        });
+      }
+
       function copyTsv() {
         if (!lastResults.length) {
           showError("Não há tabela gerada para copiar.");
@@ -569,7 +849,7 @@ www.example.br</span>
           ...lastResults.map(item => item.domain + "\t" + item.redirectTo)
         ].join("\\n");
 
-        navigator.clipboard.writeText(tsv).then(function () {
+        copyText(tsv).then(function () {
           showSuccess("Tabela copiada em TSV.");
         }).catch(function () {
           showError("Não foi possível copiar automaticamente. Tente novamente.");
